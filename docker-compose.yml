@@ -1,0 +1,45 @@
+version: "3"
+
+services:
+  db:
+    image: postgres
+    env_file:
+      - database.env
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+  s3:
+    image: minio/minio
+    command: server /data
+    env_file:
+      - s3.env
+    ports:
+      - 9000:9000
+    volumes:
+      - s3-data:/data
+  zookeeper:
+    image: zookeeper
+    ports:
+      - "2181:2181"
+    volumes:
+      - zookeeper-data:/data
+      - zookeeper-log:/datalog
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    volumes:
+      # - ./.docker/rabbitmq/etc/:/etc/rabbitmq/
+      - rabbitmq-data:/var/lib/rabbitmq/
+      - rabbitmq-log:/var/log/rabbitmq/
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+volumes:
+  postgres-data:
+  s3-data:
+  zookeeper-data:
+  zookeeper-log:
+  rabbitmq-data:
+  rabbitmq-log:
