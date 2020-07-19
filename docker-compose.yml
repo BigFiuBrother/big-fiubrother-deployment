@@ -21,7 +21,8 @@ services:
   #     - 15672:15672
   s3:
     image: minio/minio
-    command: server /data
+    entrypoint: sh
+    command: -c 'mkdir -p /data/raw_video_chunks /data/processed_video_chunks && /usr/bin/minio server /data'
     env_file:
       - config/s3.env
     ports:
