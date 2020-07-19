@@ -9,6 +9,16 @@ services:
       - postgres-data:/var/lib/postgresql/data
     ports:
       - 5432:5432
+  # rabbitmq:
+  #   image: rabbitmq:3-management
+  #   container_name: rabbitmq
+  #   volumes:
+  #     # - ./.docker/rabbitmq/etc/:/etc/rabbitmq/
+  #     - rabbitmq-data:/var/lib/rabbitmq/
+  #     - rabbitmq-log:/var/log/rabbitmq/
+  #   ports:
+  #     - 5672:5672
+  #     - 15672:15672
   s3:
     image: minio/minio
     command: server /data
@@ -25,21 +35,11 @@ services:
     volumes:
       - zookeeper-data:/data
       - zookeeper-log:/datalog
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq
-    volumes:
-      # - ./.docker/rabbitmq/etc/:/etc/rabbitmq/
-      - rabbitmq-data:/var/lib/rabbitmq/
-      - rabbitmq-log:/var/log/rabbitmq/
-    ports:
-      - 5672:5672
-      - 15672:15672
-
+  
 volumes:
   postgres-data:
+  # rabbitmq-data:
+  # rabbitmq-log:
   s3-data:
   zookeeper-data:
   zookeeper-log:
-  rabbitmq-data:
-  rabbitmq-log:
