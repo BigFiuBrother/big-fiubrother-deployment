@@ -22,7 +22,7 @@ services:
   s3:
     image: minio/minio
     entrypoint: sh
-    command: -c 'mkdir -p /data/raw_video_chunks /data/processed_video_chunks && /usr/bin/minio server /data'
+    command: -c 'mkdir -p /data/raw-video-chunks /data/processed-video-chunks && /usr/bin/minio server /data'
     env_file:
       - config/s3.env
     ports:
