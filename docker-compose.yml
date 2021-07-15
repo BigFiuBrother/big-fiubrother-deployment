@@ -1,89 +1,90 @@
 version: "3"
 
 services:
-  db:
-    image: postgres
-    env_file:
-      - config/database.env
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    ports:
-      - 5432:5432
-  # rabbitmq:
-  #   image: rabbitmq:3-management
-  #   container_name: rabbitmq
-  #   volumes:
-  #     # - ./.docker/rabbitmq/etc/:/etc/rabbitmq/
-  #     - rabbitmq-data:/var/lib/rabbitmq/
-  #     - rabbitmq-log:/var/log/rabbitmq/
-  #   ports:
-  #     - 5672:5672
-  #     - 15672:15672
-  s3:
-    image: minio/minio
-    entrypoint: sh
-    command: -c 'mkdir -p /data/raw-video-chunks /data/processed-video-chunks && /usr/bin/minio server /data'
-    env_file:
-      - config/s3.env
-    ports:
-      - 9500:9000
-    volumes:
-      - s3-data:/data
-  zookeeper:
-    image: zookeeper
-    ports:
-      - "2181:2181"
-    volumes:
-      - zookeeper-data:/data
-      - zookeeper-log:/datalog
-  mongo:
-    image: mongo:4
-    networks:
-      - graylog
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.10
-    env_file:
-      - config/elasticsearch.env
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    deploy:
-      resources:
-        limits:
-          memory: 1g
-    networks:
-      - graylog
-  graylog:
-    image: graylog/graylog:3.3
-    env_file:
-      - config/graylog.env
-    networks:
-      - graylog
-    depends_on:
-      - mongo
-      - elasticsearch
-    ports:
-      # Graylog web interface and REST API
-      - 9000:9000
-      # Syslog TCP
-      - 1514:1514
-      # Syslog UDP
-      - 1514:1514/udp
-      # GELF TCP
-      - 12201:12201
-      # GELF UDP
-      - 12201:12201/udp
-    volumes:
-      - graylog:/usr/share/graylog/data/config
+    db:
+        image: postgres
+        env_file:
+            - config/db/postgresql.env
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+        ports:
+            - 5432:5432
+    rabbitmq:
+        image: rabbitmq:3-management
+        env_file:
+            - config/rabbitmq/rabbitmq.env
+        volumes:
+            - .docker/rabbitmq/:/etc/rabbitmq/
+            - rabbitmq-data:/var/lib/rabbitmq/
+            - rabbitmq-log:/var/log/rabbitmq/
+        ports:
+            - 5672:5672
+            - 15672:15672
+    s3:
+        image: minio/minio
+        entrypoint: sh
+        command: -c 'mkdir -p /data/video-chunks && /usr/bin/minio server /data'
+        env_file:
+            - config/minio/minio.env
+        ports:
+            - 9500:9000
+        volumes:
+            - s3-data:/data
+    zookeeper:
+        image: zookeeper
+        ports:
+            - 2181:2181
+        volumes:
+            - zookeeper-data:/data
+            - zookeeper-log:/datalog
+    mongo:
+        image: mongo:4
+        networks:
+            - graylog
+    elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.8.10
+        env_file:
+            - config/elasticsearch/elasticsearch.env
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+        deploy:
+            resources:
+                limits:
+                    memory: 1g
+        networks:
+            - graylog
+    graylog:
+        image: graylog/graylog:3.3
+        env_file:
+            - config/graylog/graylog.env
+        networks:
+            - graylog
+        depends_on:
+            - mongo
+            - elasticsearch
+        ports:
+            # Graylog web interface and REST API
+            - 9000:9000
+            # Syslog TCP
+            - 1514:1514
+            # Syslog UDP
+            - 1514:1514/udp
+            # GELF TCP
+            - 12201:12201
+            # GELF UDP
+            - 12201:12201/udp
+        volumes:
+            - graylog:/usr/share/graylog/data/config
 networks:
-  graylog:
-    driver: bridge
+    graylog:
+        driver: bridge
 volumes:
-  postgres-data:
-  # rabbitmq-data:
-  # rabbitmq-log:
-  s3-data:
-  zookeeper-data:
-  zookeeper-log:
-  graylog:
+    postgres-data:
+    rabbitmq-data:
+    rabbitmq-log:
+    s3-data:
+    zookeeper-data:
+    zookeeper-log:
+    graylog:
